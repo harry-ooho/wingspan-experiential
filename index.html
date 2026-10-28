@@ -8,8 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 /* Experiential landing, played like an advert: one pinned frame and one scroll-scrubbed timeline.
-   Sky → a giant arc band carrying the tagline → pinned stat cards over a drawn line → a blue triangle opens
-   from the centre for the talent lines → grey opens back for access → Until now → blue → cards → the ask.
+   Clouds, the mark and its subhead playing in on load → the opening line → both stat cards in one frame over a
+   drawn line → a blue triangle opens from the centre for the talent lines → grey opens back for access →
+   Until now → blue → the mark again → cards → the ask.
    Single light look by choice: the brand palette is fixed. */
 :root{
   --paper:#EFEEEA; --ink:#2A2A2A; --soft:#8E8270;
@@ -18,16 +19,16 @@
   color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
-html{background:var(--night)}
+html{background:#8FA9EE}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-webkit-font-smoothing:antialiased;overflow-x:clip}
 
 /* ---------- the frame: every beat is a layer in one pinned viewport ---------- */
 .film{position:relative;height:100vh;overflow:hidden;background:var(--paper)}
 .layer{position:absolute;inset:0;overflow:hidden}
 /* the sky fades out through its own mask as it lifts, so its bottom edge never shows as a line */
-.l-sky{z-index:5;background:var(--night);isolation:isolate;--f:100;
+.l-sky{z-index:5;background:#8FA9EE;isolation:isolate;--f:100;
   -webkit-mask-image:linear-gradient(#000 calc(var(--f) * 1%),transparent 100%);mask-image:linear-gradient(#000 calc(var(--f) * 1%),transparent 100%)}
-.l-arc{z-index:6;overflow:visible;pointer-events:none}
+.l-open{z-index:6;pointer-events:none}
 .l-stats{z-index:6;overflow:visible}
 .wedge{pointer-events:none}
 #wedgeBlue{z-index:8;background:var(--blue)}
@@ -38,39 +39,35 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 .l-until{z-index:12;background:var(--paper);display:grid;place-items:center}
 .l-emp{z-index:13;color:var(--cream);background:linear-gradient(155deg,#2B4BE0 0%,#1D3BCE 45%,#4F72F0 100%)}
 
-/* ---------- sky: night → day → the mark (ported from the Wingspan Splash Copy) ---------- */
+/* ---------- sky: drifting clouds, then the mark and its subhead (ported from the Wingspan Splash Copy) ---------- */
 /* extends past the bottom too, so its upward drift never uncovers the dark backing as a strip */
 .sky{position:absolute;inset:-4% 0 -10%;will-change:transform}
 .sky video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .sky-day{z-index:1}
-.sky-night{z-index:3}
-.glow{position:absolute;left:-20%;right:-20%;bottom:-30%;height:90%;z-index:2;opacity:0;pointer-events:none;
-  background:radial-gradient(50% 55% at 50% 70%, rgba(239,238,234,.9), rgba(160,185,250,.45) 45%, rgba(111,143,247,0) 72%)}
 .reveal{position:absolute;inset:0;z-index:7;display:flex;align-items:center;justify-content:center;text-align:center;padding:10vh 16px 22vh}
-.reveal-inner{display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2.4vw,24px)}
+/* the subhead locks up with the mark: tucked under 'span', just right of the p's descender, as in the brand lockup */
+.reveal-inner{--lw:clamp(260px,52vw,720px);position:relative}
 .reveal h1{margin:0}
-.logo{display:block;width:clamp(260px,52vw,720px);height:auto;overflow:visible;filter:drop-shadow(0 6px 40px rgba(20,42,154,.45))}
+.logo{display:block;width:var(--lw);height:auto;overflow:visible;filter:drop-shadow(0 6px 40px rgba(20,42,154,.45))}
 .logo > path,.logo g path{fill:var(--cream)}
 .glyph{transform-box:fill-box}
-.tagline{margin:0;color:var(--cream);font-size:clamp(22px,2.8vw,44px);font-weight:800;line-height:1.15;letter-spacing:-.015em}
+/* the subhead: lighter and smaller than the mark, so it reads as its line rather than a second headline */
+.tagline{position:absolute;left:68.5%;top:87%;margin:0;color:var(--cream);text-align:left;white-space:nowrap;font-size:max(10px, calc(var(--lw) * .028));font-weight:700;line-height:1.05;letter-spacing:-.005em;text-shadow:0 2px 18px rgba(20,42,154,.35)}
 .tagline .ln{display:block;overflow:hidden;padding-bottom:.12em;margin-bottom:-.12em}
 .tagline .ln > span{display:block}
 .l-sky::after{content:"";position:absolute;inset:0;z-index:9;pointer-events:none;opacity:.22;mix-blend-mode:overlay;
   -webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent);
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 
-/* ---------- the arc: a giant band sweeping over the hand-over, the tagline running along it ---------- */
-.arc-svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
-.arc-band{fill:none;stroke:var(--blue);stroke-linecap:butt}
-.arc-text{font-family:var(--fd);font-weight:900;fill:var(--paper);letter-spacing:.01em;dominant-baseline:central}
-.t18{position:absolute;left:4vw;right:4vw;top:50vh;margin:0;text-align:center;font-size:clamp(44px,7.6vw,150px);font-weight:900;line-height:1.02;letter-spacing:-.035em}
+/* ---------- the opening line, straight into the story ---------- */
+.t18{position:absolute;left:4vw;right:4vw;top:50%;transform:translateY(-50%);margin:0;text-align:center;font-size:clamp(44px,7.6vw,150px);font-weight:900;line-height:1.02;letter-spacing:-.035em}
 
-/* ---------- the stats: pinned cards with a sticker, a thin line drawing behind them ---------- */
-.sworld{position:absolute;left:0;top:0;width:100%;height:200vh;will-change:transform}
-.spath{position:absolute;left:0;top:0;width:100%;height:200vh;overflow:visible;pointer-events:none}
+/* ---------- the stats: both cards in one frame, 40% on the left, a thin line drawing behind them ---------- */
+.sworld{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:clamp(20px,4vw,72px);padding:6vh 5vw 0}
+.spath{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .spath path{fill:none;stroke-linecap:butt;stroke-linejoin:round}
 .sband{stroke:var(--ink)}
-.stat-card{position:absolute;width:min(48vw,800px);padding:clamp(64px,7vw,120px) clamp(28px,4vw,72px) clamp(36px,4vw,72px);border-radius:18px;text-align:center;will-change:transform}
+.stat-card{position:relative;flex:0 1 auto;width:min(42vw,660px);padding:clamp(64px,7vw,120px) clamp(28px,4vw,72px) clamp(36px,4vw,72px);border-radius:18px;text-align:center;will-change:transform}
 /* the same cloudy blue as the blue section: a gradient with soft blurred blobs and a fine dot texture */
 .card-bg{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:-1;background:linear-gradient(155deg,#2B4BE0 0%,#1D3BCE 45%,#4F72F0 100%)}
 .card-bg i{position:absolute;border-radius:50%;filter:blur(40px);opacity:.6;animation:drift 14s ease-in-out infinite alternate}
@@ -79,11 +76,10 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 .card-bg::after{content:"";position:absolute;inset:0;opacity:.35;background-image:radial-gradient(rgba(255,255,255,.28) 1px,transparent 1.4px);background-size:7px 7px}
 .stat-card > :not(.card-bg){position:relative}
 .stat-card .sticker{position:absolute}
-.card-a{right:6vw;top:14vh;color:var(--paper);isolation:isolate}
-.card-b{left:6vw;top:74vh;color:var(--paper);isolation:isolate}
-.stat-card h3{margin:0;font-size:clamp(90px,12.5vw,230px);font-weight:900;line-height:.86;letter-spacing:-.05em}
+.card-a,.card-b{color:var(--paper);isolation:isolate}
+.stat-card h3{margin:0;font-size:clamp(76px,10vw,190px);font-weight:900;line-height:.86;letter-spacing:-.05em}
 .stat-card .kicker{display:block;margin-top:.5em;font-size:clamp(13px,1vw,16px);font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
-.stat-card p{margin:.55em auto 0;max-width:20ch;font-size:clamp(22px,2.5vw,44px);font-weight:800;line-height:1.12;letter-spacing:-.015em}
+.stat-card p{margin:.55em auto 0;max-width:20ch;font-size:clamp(20px,2.1vw,38px);font-weight:800;line-height:1.12;letter-spacing:-.015em}
 .sticker{position:absolute;left:50%;top:0;width:clamp(88px,8.5vw,150px);aspect-ratio:1;border-radius:50%;background:var(--paper);display:grid;place-items:center;box-shadow:0 8px 24px rgba(42,42,42,.18)}
 .sticker .ico{width:60%;height:60%;color:var(--blue)}
 
@@ -113,10 +109,8 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 .cards{position:absolute;left:0;right:0;top:20vh;display:flex;justify-content:center;padding:0 4vw}
 .card{position:relative;flex:0 0 auto;width:min(25vw,380px);height:min(66vh,580px);margin:0 -1.6vw;display:flex;flex-direction:column;
   background:var(--paper);color:var(--blue);border-radius:10px;box-shadow:0 18px 40px rgba(6,10,38,.28);overflow:hidden;will-change:transform}
-.card .tab{position:absolute;left:24px;top:14px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
-.card h3{margin:0;padding:44px 48px 0 24px;font-size:clamp(28px,3vw,52px);font-weight:900;line-height:.95;letter-spacing:-.03em;text-transform:uppercase}
-.card .no{margin:auto 0 0;padding:0 24px;font-size:clamp(48px,5.4vw,92px);font-weight:900;letter-spacing:-.05em;line-height:1}
-.card p{margin:10px 0 18px;padding:0 48px 0 24px;font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
+.card h3{margin:0;padding:36px 20px 0 24px;font-size:clamp(22px,2.6vw,48px);font-weight:900;line-height:.95;letter-spacing:-.03em;text-transform:uppercase}
+.card p{margin:auto 0 18px;padding:0 48px 0 24px;font-size:13px;font-weight:700;line-height:1.35;letter-spacing:.02em;text-transform:uppercase;color:var(--ink)}
 .card .art{flex:0 0 34%;display:grid;place-items:center;margin:0 12px 12px;border-radius:6px;background:var(--tint)}
 .card .art img{width:44%;height:auto}
 /* centred by GSAP percentages (not a CSS transform), so their own moves never undo the centring */
@@ -138,6 +132,8 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 .ico.support{--src:url(assets/ic-support.svg)}
 .ico.stay{--src:url(assets/ic-stay.svg)}
 .ico.impact{--src:url(assets/ic-impact.svg)}
+.mark-big{position:absolute;left:50%;top:50%;width:clamp(260px,52vw,720px);aspect-ratio:1634 / 564;color:var(--cream)}
+.mark-big svg{display:block;width:100%;height:100%;overflow:visible;fill:currentColor}
 .ask-ico{position:absolute;left:50%;top:50%;width:min(110vmin,1100px);aspect-ratio:1;color:var(--cream);opacity:.1;pointer-events:none}
 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
 .w > span{display:inline-block}
@@ -150,9 +146,8 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 .film.static #type{color:var(--ink)}
 
 @media (max-width:720px){
-  .stat-card{width:86vw}
-  .card-a{right:7vw}
-  .card-b{left:7vw}
+  .sworld{flex-direction:column;gap:16px}
+  .stat-card{width:86vw;padding:56px 24px 28px}
   .cards{flex-wrap:wrap;gap:12px;top:16vh}
   .card{width:42vw;height:34vh;margin:0}
 }
@@ -167,8 +162,6 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 
   <section class="layer l-sky" id="sky" aria-labelledby="opening-t">
     <div class="sky sky-day"><video data-src="media/day.mp4" muted loop playsinline preload="auto"></video></div>
-    <div class="glow" id="glow"></div>
-    <div class="sky sky-night" id="night"><video data-src="media/night.mp4" muted loop playsinline preload="auto"></video></div>
     <div class="reveal">
       <div class="reveal-inner">
         <h1><svg class="logo" id="logo" viewBox="0 -4 1634 564" role="img" aria-label="Wingspan"><defs><mask id="mfan" maskUnits="userSpaceOnUse" x="-1600" y="-1600" width="4800" height="3800"><rect x="-1600" y="-1600" width="4800" height="3800" fill="#fff"/><path id="fanCover" fill="#000"/><polygon points="163,298 236,298 244,432 202,494 163,494" fill="#fff"/></mask></defs>
@@ -182,17 +175,13 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 <path class="glyph" fill-rule="evenodd" d="M1035.2 544.2C1035.7 541.1 1040.1 512.4 1044.9 480.5C1049.8 448.6 1057.7 396.3 1062.6 364.2L1071.5 306.0L1096.7 306.0L1122.0 306.0L1122.0 318.8L1122.0 331.5L1127.6 325.2C1145.3 305.4 1171.4 296.8 1195.5 303.0C1214.9 308.0 1231.2 323.2 1239.7 344.2C1245.7 359.1 1247.8 383.6 1244.5 402.3C1237.4 442.8 1212.1 474.6 1178.5 485.0C1168.7 488.0 1152.6 488.8 1144.0 486.6C1130.3 483.2 1119.3 475.6 1112.1 464.9C1109.7 461.4 1107.8 459.4 1107.6 460.1C1107.0 461.8 1094.0 547.0 1094.0 548.8C1094.0 549.7 1087.4 550.0 1064.2 550.0L1034.3 550.0L1035.2 544.2ZM1162.9 431.6C1169.9 428.0 1177.0 421.3 1180.4 415.1C1193.0 391.9 1188.9 365.7 1171.2 356.6C1162.6 352.2 1150.1 352.5 1139.3 357.5C1113.1 369.5 1106.2 414.9 1128.4 429.8C1135.1 434.2 1138.1 435.0 1148.5 434.6C1156.0 434.4 1158.4 433.9 1162.9 431.6Z"/>
 <path class="glyph" fill-rule="evenodd" d="M1304.2 486.0C1280.4 479.6 1262.7 460.0 1255.8 432.5C1252.8 420.4 1252.6 394.9 1255.4 382.0C1264.3 340.7 1290.1 311.2 1324.4 303.0C1350.5 296.7 1376.9 305.6 1389.9 325.1C1393.7 330.8 1394.0 331.1 1394.9 328.8C1395.3 327.6 1397.4 321.9 1399.5 316.2L1403.2 306.0L1429.6 306.0C1444.1 306.0 1456.0 306.3 1456.0 306.8C1456.1 307.2 1450.1 347.0 1442.8 395.2L1429.5 483.0L1404.4 483.0L1379.2 483.0L1378.6 479.9C1378.3 478.2 1378.0 472.5 1378.0 467.4C1378.0 462.2 1377.8 458.0 1377.6 458.0C1377.4 458.0 1373.7 461.6 1369.5 466.0C1354.5 481.3 1342.2 487.1 1323.0 487.7C1313.9 487.9 1310.0 487.6 1304.2 486.0ZM1358.6 432.9C1365.9 430.1 1375.4 421.0 1379.3 413.0C1388.8 393.3 1386.2 372.0 1373.0 360.3C1365.2 353.4 1347.8 351.9 1336.8 357.3C1320.5 365.3 1310.0 386.6 1312.8 406.2C1314.1 415.1 1316.7 420.9 1321.9 426.3C1330.8 435.7 1344.5 438.2 1358.6 432.9Z"/>
 <path class="glyph" fill-rule="evenodd" d="M1445.5 480.8C1445.9 478.6 1472.0 307.5 1472.0 306.4C1472.0 306.2 1482.2 306.1 1494.8 306.2L1517.5 306.5L1518.6 318.0C1519.3 324.3 1519.8 329.6 1519.9 329.7C1520.0 329.8 1522.4 327.4 1525.2 324.3C1540.7 308.0 1559.4 300.3 1581.0 301.3C1597.0 302.1 1607.6 306.4 1617.2 316.0C1628.0 326.8 1632.9 341.7 1631.6 359.5C1631.2 364.4 1627.0 394.1 1622.2 425.5L1613.4 482.5L1583.6 482.8L1553.8 483.0L1554.4 480.3C1556.7 469.2 1570.0 380.2 1570.0 376.0C1570.0 360.9 1561.2 352.8 1546.4 354.3C1535.5 355.4 1526.4 363.0 1522.2 374.3C1520.9 377.6 1517.1 399.8 1512.3 431.3L1504.5 483.0L1474.7 483.0L1445.0 483.0L1445.5 480.8Z"/></svg></h1>
-        <p class="tagline" id="opening-t"><span class="ln"><span>Bringing a wider world of</span></span><span class="ln"><span>work within reach.</span></span></p>
+        <p class="tagline" id="opening-t"><span class="ln"><span>Bringing a wider world</span></span><span class="ln"><span>of work within reach.</span></span></p>
       </div>
     </div>
   </section>
 
-  <section class="layer l-arc" id="arc">
-    <svg class="arc-svg" id="arcSvg" aria-hidden="true">
-      <path class="arc-band" id="arcPath"/>
-      <text class="arc-text" id="arcText"><textPath href="#arcPath" id="arcTp"></textPath></text>
-    </svg>
-    <p class="t18" id="t18">At 18, young people<br>in care have to leave<br>the system.</p>
+  <section class="layer l-open" id="open">
+    <p class="t18" id="t18">At 18, leaving the care<br>system can mean facing<br>adulthood alone.</p>
   </section>
 
   <section class="layer l-stats" id="stats" aria-label="The numbers">
@@ -202,14 +191,14 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
         <span class="card-bg" aria-hidden="true"><i></i><i></i></span>
         <span class="sticker" aria-hidden="true"><span class="ico impact"></span></span>
         <h3>40%</h3>
-        <p>By their early 20s, 40% are out of work, education or training.</p>
+        <p>are out of work, education or training by their early 20s.</p>
       </article>
       <article class="stat-card card-b" id="cardB">
         <span class="card-bg" aria-hidden="true"><i></i><i></i></span>
         <span class="sticker" aria-hidden="true"><span class="ico stay"></span></span>
         <h3>13%</h3>
         <span class="kicker">Their peers</span>
-        <p>That’s 3× their peers.</p>
+        <p>3× their peers.</p>
       </article>
     </div>
   </section>
@@ -219,7 +208,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
   <section class="layer l-type" id="type" aria-label="Care leavers">
     <div class="tgroup" id="groupA">
       <h2 class="tl" data-type>Care leavers don’t lack talent.</h2>
-      <p class="tl" data-type>They are <span class="hl">resilient</span>, <span class="hl">adaptable</span>, <span class="hl">loyal</span> and <span class="hl">driven</span>.</p>
+      <p class="tl" data-type>They are <span class="hl">resilient</span>, <span class="hl">adaptable</span>, <span class="hl">loyal</span>, and <span class="hl">driven</span>.</p>
     </div>
   </section>
 
@@ -228,7 +217,7 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
   <section class="layer l-type" id="type2" aria-label="Access">
     <div class="tgroup" id="groupB">
       <h2 class="tl" data-type>They lack access.</h2>
-      <p class="tl" data-type>Hiring routes weren’t built for them, so they fall through the cracks.</p>
+      <p class="tl" data-type>Traditional hiring routes weren’t built for them.</p>
     </div>
   </section>
 
@@ -247,18 +236,19 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
     <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
     <span class="dots"></span>
     <span class="ico impact ask-ico" id="askIco" aria-hidden="true"></span>
-    <p class="connects" id="connects">Wingspan connects employers with care-experienced young people and supports both until the job&nbsp;sticks.</p>
+    <div class="mark-big" id="markBig" aria-hidden="true"></div>
+    <p class="connects" id="connects">We connect employers with care-experienced young people, and back both until the job&nbsp;sticks.</p>
     <h2 class="emp-t" id="empT">Employers get:</h2>
     <div class="cards">
-      <article class="card" style="--tint:#E3C6F8;--r:-4deg"><span class="tab">Employers get</span><h3>Prepared candidates</h3><p class="no">01.</p><p>Screened for readiness and matched to your roles.</p><div class="art"><img src="assets/ic-prepared.svg" alt=""></div></article>
-      <article class="card" style="--tint:#D9CCF6;--r:3deg"><h3>Support for your team</h3><p class="no">02.</p><p>Guidance so managers feel confident from day one.</p><div class="art"><img src="assets/ic-support.svg" alt=""></div></article>
-      <article class="card" style="--tint:#CFC0F2;--r:-2deg"><h3>Hires that stay</h3><p class="no">03.</p><p>Ongoing support for every hire, long after day one.</p><div class="art"><img src="assets/ic-stay.svg" alt=""></div></article>
-      <article class="card" style="--tint:#C7B2EE;--r:4deg"><h3>Impact you can see</h3><p class="no">04.</p><p>Help set a young person’s life on a new course.</p><div class="art"><img src="assets/ic-impact.svg" alt=""></div></article>
+      <article class="card" style="--tint:#E3C6F8;--r:-4deg"><h3>Prepared candidates</h3><p>Screened for readiness. Matched to your roles.</p><div class="art"><img src="assets/ic-prepared.svg" alt=""></div></article>
+      <article class="card" style="--tint:#D9CCF6;--r:3deg"><h3>Manager confidence</h3><p>Practical guidance from day one.</p><div class="art"><img src="assets/ic-support.svg" alt=""></div></article>
+      <article class="card" style="--tint:#CFC0F2;--r:-2deg"><h3>Hires that stay</h3><p>Ongoing support beyond the start date.</p><div class="art"><img src="assets/ic-stay.svg" alt=""></div></article>
+      <article class="card" style="--tint:#C7B2EE;--r:4deg"><h3>Impact that matters</h3><p>Help change a young person’s future.</p><div class="art"><img src="assets/ic-impact.svg" alt=""></div></article>
     </div>
     <div class="ask" id="ask">
-      <h2 class="ask-t">Just 20 employers will kick-start this programme.</h2>
+      <h2 class="ask-t">Just 20 employers will launch this ground-breaking programme.</h2>
       <p class="ask-p">Be one of the first to change what’s possible for care leavers, for good.</p>
-      <a class="cta" href="#">Book a call</a>
+      <a class="cta" href="#">Ask about our 2027 London Pilot</a>
     </div>
   </section>
 
@@ -333,9 +323,11 @@ function splitChars(root) {
 }
 
 /* ---------- the wing fans open: one intact wing shape, masked by a sector that sweeps from the top feather down ---------- */
-const fanCover = $('#fanCover'), FAN = { a: -88 };
-function drawFan() {
-  const a1 = FAN.a, a2 = -200;
+// the hero logo and its copy on the blue each have their own cover and angle, drawn the same way
+const FAN = { a: -88 }, FAN2 = { a: -88 };
+function drawFan() { fanTo($('#fanCover'), FAN.a); const c2 = $('#fanCover2'); if (c2) fanTo(c2, FAN2.a); }
+function fanTo(fanCover, a1) {
+  const a2 = -200;
   if (a1 <= a2 + 0.5) { fanCover.setAttribute('d', ''); return; }
   let d = 'M185 480';
   for (let i = 0; i <= 24; i++) {
@@ -364,25 +356,7 @@ function splineParts(pts) {
   return { start: `M${f(pts[0].x)} ${f(pts[0].y)}`, segs };
 }
 
-/* ---------- the arc: one huge curve over the hand-over, the tagline sliding along it as you scroll ---------- */
-const arcPath = $('#arcPath'), arcText = $('#arcText'), arcTp = $('#arcTp');
-const PHRASE = 'BRINGING A WIDER WORLD OF WORK WITHIN REACH · ';
-const ARC = { o: 0, one: 1 };
-function buildArc() {
-  const W = innerWidth, H = innerHeight, sw = Math.max(90, H * 0.17);
-  $('#arcSvg').setAttribute('viewBox', `0 0 ${W} ${H}`);
-  arcPath.setAttribute('d', `M${-W * 0.15} ${H * 0.5} C${W * 0.25} ${H * 0.14} ${W * 0.75} ${H * 0.14} ${W * 1.15} ${H * 0.5}`);
-  arcPath.style.strokeWidth = sw;
-  arcText.style.fontSize = (sw * 0.6).toFixed(1) + 'px';
-  arcTp.textContent = PHRASE;
-  ARC.one = Math.max(1, arcText.getComputedTextLength());
-  arcTp.textContent = PHRASE.repeat(Math.ceil(arcPath.getTotalLength() / ARC.one) + 3);
-  drawArc();
-}
-// the offset loops within one phrase, so the words can slide on indefinitely without running out
-function drawArc() { arcTp.setAttribute('startOffset', (-(ARC.o % ARC.one) - ARC.one).toFixed(1)); }
-
-/* ---------- the stats: two plain black ribbons, each a smooth squiggle from one edge of the screen to the other,
+/* ---------- the stats: a plain black ribbon, a smooth squiggle from one edge of the screen to the other,
    drawing as you scroll behind the cards ---------- */
 // Chaikin corner-cutting: each pass swaps every span for points at its quarter and three-quarter marks,
 // rounding off any tight turn before the spline goes through
@@ -395,13 +369,13 @@ function chaikin(pts) {
   out.push(pts[pts.length - 1]);
   return out;
 }
-const S = { p1: 0, p2: 0 }, RIBBONS = [];
+const S = { p1: 0 }, RIBBONS = [];
 const svgNS = 'http://www.w3.org/2000/svg';
 const mk = (tag, attrs, parent) => { const el = document.createElementNS(svgNS, tag); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); parent && parent.append(el); return el; };
 function buildStats() {
   const W = innerWidth, H = innerHeight, M = Math.min(W, H), sw = Math.max(34, M * 0.064);
   const svgEl = $('#spath');
-  svgEl.setAttribute('viewBox', `0 0 ${W} ${2 * H}`);
+  svgEl.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svgEl.innerHTML = '';
   const defs = mk('defs', {}, svgEl);
   RIBBONS.length = 0;
@@ -417,10 +391,8 @@ function buildStats() {
     return { pts, mids: [] };
   };
   const routes = [
-    // from high on the left edge, down past the opening line and across behind the 40% card to the right edge
-    wave([-0.12, -0.4], [1.14, 0.7], M * 0.13, 1.5),
-    // from the right edge, across under the 13% card and off the left edge
-    wave([1.14, 0.94], [-0.14, 1.56], M * 0.11, 1.5)
+    // from high on the left edge, down behind both cards and off the right edge
+    wave([-0.12, 0.18], [1.14, 0.86], M * 0.12, 1.5)
   ];
   routes.forEach(({ pts, mids }, li) => {
     const smooth = pts;
@@ -469,6 +441,19 @@ function wedge(el, t, axis) {
 // blue opens towards the left, grey back towards the right
 function drawWedges() { wedge($('#wedgeBlue'), WG.b, 180); wedge($('#wedgeGrey'), WG.g, 0); }
 
+/* ---------- the wordmark, copied from the logo onto the blue after Until now, with its own feather mask ---------- */
+document.querySelectorAll('#markBig').forEach(m => {
+  const svg = $('#logo').cloneNode(true);
+  svg.querySelector('#mfan').id = 'mfan2';
+  svg.querySelector('#fanCover').id = 'fanCover2';
+  svg.querySelector('[mask]').setAttribute('mask', 'url(#mfan2)');
+  svg.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
+  svg.querySelectorAll('[id]:not(#mfan2):not(#fanCover2)').forEach(el => el.removeAttribute('id'));
+  svg.removeAttribute('id'); svg.removeAttribute('class'); svg.removeAttribute('style');
+  svg.removeAttribute('role'); svg.removeAttribute('aria-label'); svg.setAttribute('aria-hidden', 'true');
+  m.append(svg);
+});
+
 /* ---------- Until now: the star's outline, carried into the white copy of the words as a clip ---------- */
 const starPts = (() => {
   const p = $('#star'), L = p.getTotalLength();
@@ -510,86 +495,84 @@ const conLine = el => { const tops = [...new Set(wCon.map(w => w.parentElement.o
 
 if (reduce) {
   $('#film').classList.add('static');
-  gsap.set('#night', { opacity: 0 });
-  FAN.a = -200; drawFan();
-  buildArc(); buildStats(); S.p1 = S.p2 = 1; drawStats();
+  FAN.a = FAN2.a = -200; drawFan();
+  buildStats(); S.p1 = 1; drawStats();
   typeLines.forEach((ln, i) => { T[i] = ln.chars.length; }); renderType(); caret.remove();
   gsap.set('.hl', { backgroundSize: '100% 100%' });
-  gsap.set(['#connects', '#ask'], { xPercent: -50, yPercent: -50 });
+  gsap.set(['#connects', '#ask', '#markBig'], { xPercent: -50, yPercent: -50 });
 } else {
   const cards = gsap.utils.toArray('.card');
   drawFan();
   gsap.set('#logo', { opacity: 0, yPercent: 14, scale: 0.94, transformOrigin: '50% 60%' });
   gsap.set('.tagline .ln > span', { yPercent: 110 });
-  gsap.set('#arc', { yPercent: 85 });
+  gsap.set('#open', { yPercent: 100 });
   gsap.set(w18, { yPercent: 108 });
   // the 'connects' words start below their masks, slightly tilted, ready to rise in line by line
   gsap.set(wCon, { yPercent: 115, rotation: 4 });
-  gsap.set('#stats', { yPercent: 100 });
+  gsap.set('#stats', { autoAlpha: 0 });
   gsap.set('.sticker', { xPercent: -50, yPercent: -50, scale: 0, rotation: -60 });
-  gsap.set('#cardA', { yPercent: 30, scale: 0.92, rotation: 7 });
-  gsap.set('#cardB', { yPercent: 30, scale: 0.92, rotation: -7 });
+  // the cards wait just below the fold, so they arrive the moment the opening line moves on
+  gsap.set('#cardA', { y: () => innerHeight * 0.75, scale: 0.92, rotation: -7 });
+  gsap.set('#cardB', { y: () => innerHeight * 0.9, scale: 0.92, rotation: 7 });
   gsap.set('#until', { autoAlpha: 0 });
   gsap.set('#badge', { scale: 0, rotation: -40 });
   gsap.set('.until-t', { yPercent: 40, opacity: 0 });
   gsap.set('#employers', { autoAlpha: 0 });
   gsap.set('#empT', { yPercent: 60, opacity: 0 });
-  gsap.set(['#connects', '#ask', '#askIco'], { xPercent: -50, yPercent: -50 });
+  gsap.set(['#connects', '#ask', '#askIco', '#markBig'], { xPercent: -50, yPercent: -50 });
+  // the mark moves as one piece: its W is built from the wing and the letters together, so they never split
+  // the same entrance as the hero mark: it rises in and the wing fans open from the top feather down
+  gsap.set('#markBig', { opacity: 0, yPercent: -36, scale: 0.94, transformOrigin: '50% 60%' });
   gsap.set('#ask', { autoAlpha: 0, y: 60 });
   gsap.set('#askIco', { scale: 0.6, opacity: 0 });
   gsap.set(cards, { yPercent: 140, rotation: i => [-14, 10, -8, 16][i] });
 
-  const buildAll = () => { buildArc(); buildStats(); drawWedges(); };
+  const buildAll = () => { buildStats(); drawWedges(); };
   ScrollTrigger.addEventListener('refreshInit', buildAll);
   buildAll();
   // sizes depend on the font, so measure again once it has loaded
   document.fonts.ready.then(() => ScrollTrigger.refresh());
+
+  // the opening plays on its own as the page loads: clouds first, then the mark fans on, then its subhead
+  gsap.timeline({ delay: 0.6, onUpdate: drawFan })
+    .to('#logo', { opacity: 1, yPercent: 0, scale: 1, duration: 1.1, ease: 'smooth-ease' })
+    .to(FAN, { a: -200, duration: 1.1, ease: 'smooth-ease' }, 0.15)
+    .to('.tagline .ln > span', { yPercent: 0, duration: 0.9, stagger: 0.12, ease: 'smooth-ease' }, 0.9);
 
   const lens = typeLines.map(l => l.chars.length);
   const clear = { opacity: 0, y: -60, filter: 'blur(10px)', duration: 0.45, ease: 'power2.in' };
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
     onUpdate() {
-      renderType(); drawFan(); drawArc(); drawStats(); drawWedges(); drawUntil();
-      playSky(tl.time() < 2.6);
+      renderType(); drawFan(); drawStats(); drawWedges(); drawUntil();
+      playSky(tl.time() < 1.4);
     },
-    scrollTrigger: { trigger: '#film', pin: true, start: 'top top', end: () => '+=' + innerHeight * 11, scrub: 0.7, invalidateOnRefresh: true }
+    scrollTrigger: { trigger: '#film', pin: true, start: 'top top', end: () => '+=' + innerHeight * 0.75 * tl.duration(), scrub: 0.7, invalidateOnRefresh: true }
   });
 
-  // 1 · night to day, the mark fans open, the tagline lifts
-  tl.to('#night', { opacity: 0, duration: 0.8, ease: 'sine.inOut' }, 0.1)
-    .to('#glow', { opacity: 0.95, duration: 0.4, ease: 'sine.out' }, 0.1)
-    .to('#glow', { opacity: 0, duration: 0.4, ease: 'sine.in' }, 0.5)
-    .to('.sky-day', { yPercent: -3, duration: 1.6 }, 0)
-    .to('.sky-night', { yPercent: -5, duration: 1.6 }, 0)
-    .to('#logo', { opacity: 1, yPercent: 0, scale: 1, duration: 0.4, ease: 'smooth-ease' }, 0.6)
-    .to(FAN, { a: -200, duration: 0.4, ease: 'smooth-ease' }, 0.65)
-    .to('.tagline .ln > span', { yPercent: 0, duration: 0.3, stagger: 0.05, ease: 'smooth-ease' }, 0.85)
-    .to('#sky', { '--f': 35, duration: 0.7, ease: 'sine.inOut' }, 0.95)
+  // 1 · the clouds drift and soften at the bottom as you start to scroll
+  tl.to('.sky-day', { yPercent: -3, duration: 1.2 }, 0)
+    .to('#sky', { '--f': 35, duration: 0.6, ease: 'sine.inOut' }, 0.2)
 
-  // 2 · the sky lifts away as the arc sweeps up over the join, its words sliding along it
-    .addLabel('handover', 1.2)
+  // 2 · the sky lifts away and the opening line comes straight up behind it
+    .addLabel('handover', 0.5)
     .to('#sky', { yPercent: -100, duration: 0.9, ease: 'smooth-ease' }, 'handover')
-    .to('#arc', { yPercent: 0, duration: 0.9, ease: 'smooth-ease' }, 'handover')
-    .to(ARC, { o: () => ARC.one * 0.9, duration: 2 }, 'handover-=0.2')
+    .to('#open', { yPercent: 0, duration: 0.9, ease: 'smooth-ease' }, 'handover')
     .to(w18, { yPercent: 0, duration: 0.35, stagger: 0.03, ease: 'smooth-ease' }, 'handover+=0.3')
 
-  // 3 · like a page scrolling on: the cards come up straight behind the opening line, settle as they arrive,
-  //     pass each other, and the first falls back as it leaves the top; the lines draw as they go
-    .addLabel('stats', 'handover+=0.8')
-    .to('#arc', { yPercent: -100, duration: 1, ease: 'sine.inOut' }, 'stats')
-    .to('#stats', { yPercent: 0, duration: 1, ease: 'sine.inOut' }, 'stats')
-    .to('#sworld', { y: () => -innerHeight * 0.85, duration: 1.7, ease: 'sine.inOut' }, 'stats+=0.45')
-    .to(S, { p1: 1, duration: 1.5, ease: 'sine.inOut' }, 'stats-=0.5')
-    .to(S, { p2: 1, duration: 0.8, ease: 'sine.inOut' }, 'stats+=0.95')
-    .to('#cardA', { yPercent: 0, scale: 1, rotation: -2, duration: 0.9, ease: 'smooth-ease' }, 'stats+=0.15')
-    .fromTo('#cardA .sticker', { scale: 0, rotation: -140 }, { scale: 1, rotation: -8, duration: 0.6, ease: 'elastic-soft', immediateRender: false }, 'stats+=0.5')
-    .to('#cardB', { yPercent: 0, scale: 1, rotation: 2, duration: 0.9, ease: 'smooth-ease' }, 'stats+=0.9')
-    .fromTo('#cardB .sticker', { scale: 0, rotation: -140 }, { scale: 1, rotation: 8, duration: 0.6, ease: 'elastic-soft', immediateRender: false }, 'stats+=1.2')
-    .to('#cardA', { opacity: 0.35, yPercent: -10, scale: 0.86, rotation: -6, duration: 0.7, ease: 'sine.in' }, 'stats+=1.3')
+  // 3 · the opening line moves up and out as both stat cards rise in behind it, 40% first, then its peers;
+  //     the line draws behind them as they settle
+    .addLabel('stats', 'handover+=0.85')
+    .to('#open', { yPercent: -60, opacity: 0, duration: 0.6, ease: 'power2.in' }, 'stats')
+    .set('#stats', { autoAlpha: 1 }, 'stats')
+    .to(S, { p1: 1, duration: 1, ease: 'sine.inOut' }, 'stats+=0.1')
+    .to('#cardA', { y: 0, scale: 1, rotation: -2, duration: 0.7, ease: 'smooth-ease' }, 'stats+=0.2')
+    .fromTo('#cardA .sticker', { scale: 0, rotation: -140 }, { scale: 1, rotation: -8, duration: 0.5, ease: 'elastic-soft', immediateRender: false }, 'stats+=0.5')
+    .to('#cardB', { y: 0, scale: 1, rotation: 2, duration: 0.7, ease: 'smooth-ease' }, 'stats+=0.4')
+    .fromTo('#cardB .sticker', { scale: 0, rotation: -140 }, { scale: 1, rotation: 8, duration: 0.5, ease: 'elastic-soft', immediateRender: false }, 'stats+=0.7')
 
   // 4 · the blue opens out of the centre, and the words start typing while it is still opening
-    .addLabel('blue1', 'stats+=1.85')
+    .addLabel('blue1', 'stats+=1.5')
     .to(WG, { b: 1, duration: 0.8, ease: 'power1.inOut' }, 'blue1')
     .set('#stats', { autoAlpha: 0 }, 'blue1+=0.82')
     .addLabel('type', 'blue1+=0.35')
@@ -616,12 +599,16 @@ if (reduce) {
     .to('#star', { fill: '#2445D8', duration: 0.4 }, 'grow+=0.8')
     .to('#until', { backgroundColor: '#2445D8', duration: 0.1 }, 'grow+=1.2')
 
-  // 7 · out of the blue: what Wingspan does, then the four employer cards rise and fan in
+  // 7 · out of the blue the mark comes back on its own, then what Wingspan does, then the four employer cards
     .addLabel('blue', 'grow+=1.15')
     .set('#employers', { autoAlpha: 1 }, 'blue')
-    .to(wCon, { yPercent: 0, rotation: 0, duration: 0.55, stagger: (i, el) => conLine(el) * 0.12 + i * 0.008, ease: 'smooth-ease' }, 'blue')
-    .to('#connects', { y: -90, opacity: 0, duration: 0.4, ease: 'power2.in' }, 'blue+=0.95')
-    .addLabel('cards', 'blue+=1.15')
+    .to('#markBig', { opacity: 1, yPercent: -50, scale: 1, duration: 0.5, ease: 'smooth-ease' }, 'blue')
+    .to(FAN2, { a: -200, duration: 0.55, ease: 'smooth-ease' }, 'blue+=0.07')
+    .to('#markBig', { y: -80, opacity: 0, duration: 0.4, ease: 'power2.in' }, 'blue+=1.1')
+    .addLabel('connects', 'blue+=1.35')
+    .to(wCon, { yPercent: 0, rotation: 0, duration: 0.55, stagger: (i, el) => conLine(el) * 0.12 + i * 0.008, ease: 'smooth-ease' }, 'connects')
+    .to('#connects', { y: -90, opacity: 0, duration: 0.4, ease: 'power2.in' }, 'connects+=0.95')
+    .addLabel('cards', 'connects+=1.15')
     .to('#empT', { yPercent: 0, opacity: 1, duration: 0.35, ease: 'power3.out' }, 'cards')
     .to(cards, { yPercent: i => [4, 0, 6, 2][i], rotation: (i, el) => parseFloat(getComputedStyle(el).getPropertyValue('--r')), duration: 0.7, stagger: 0.22, ease: 'power3.out' }, 'cards+=0.1')
 
