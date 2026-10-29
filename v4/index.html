@@ -177,11 +177,10 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 /* the lollipop selection in the brand lilac, for the talent qualities; access is selected in green, for go */
 .sel.lil{--az:var(--lilac);--sc:rgba(205,145,233,.62)}
 .sel.go{--az:#9FD989;--sc:rgba(159,217,137,.5)}
-/* across more than one line: the selection follows each line, the start handle on the first and the end handle on
-   the last, as a long selection does on a phone; it sweeps along every line at once */
-.sel.multi{display:inline;padding:0 .06em;margin:0;-webkit-box-decoration-break:clone;box-decoration-break:clone;
-  background-position:0 6%;background-size:calc(var(--s) * 100%) 94%}
-.sel.multi::after{left:auto;right:0;margin:0 calc(var(--d) / -2) 0 0;opacity:var(--e,0)}
+/* across more than one line: each line is its own selection with its own pair of handles, all sweeping together
+   from the one set of values on the phrase around them */
+#conHl{--s:0;--h:0}
+.sel.line{--s:inherit;--h:inherit}
 /* the handles: a thin line at each end, capped by a dot sitting right on its tip — on top for the start, underneath
    for the end, as when selecting text; the end one rides the sweep. --d is the dot's size. */
 .sel::before,.sel::after{--d:.22em;content:"";position:absolute;width:var(--d);margin-left:calc(var(--d) / -2);opacity:var(--h);pointer-events:none}
@@ -396,7 +395,7 @@ html.stepped,html.stepped body{height:100%;overflow:hidden;overscroll-behavior:n
       <p class="tagline" id="brandTag"><span class="ln"><span>Bringing a wider world</span></span><span class="ln"><span>of work within reach.</span></span></p>
     </div>
     <div class="con-wrap" id="conWrap">
-      <p class="connects" id="connects">Wingspan helps employers hire care-experienced young people, <span class="sel lil multi" id="conHl">and supports both until the job&nbsp;sticks.</span></p>
+      <p class="connects" id="connects">Wingspan helps employers hire care-experienced young people, <span id="conHl">and supports both until the job&nbsp;sticks.</span></p>
     </div>
   </section>
 
@@ -686,8 +685,36 @@ const w18 = splitWords($('#t18')), wCon = splitWords($('#connects'));
 // the second line of each statement rises in whole, word masks staggered only slightly, rather than typing
 const wSkills = splitWords($('#skillsLine')), wRoutes = splitWords($('#routesLine'));
 const wCon2 = [...$('#conHl').querySelectorAll('.w > span')], wCon1 = wCon.filter(w => !wCon2.includes(w));
+// where a word sits on screen, to the line (the wrapping selections are positioned, so offsetTop won't do)
+const lineTop = el => Math.round(el.getBoundingClientRect().top / 4);
 // which visual line a word of the 'connects' sentence sits on, so its mask reveal runs line by line
-const conLine = el => { const tops = [...new Set(wCon.map(w => w.parentElement.offsetTop))].sort((a, b) => a - b); return Math.max(0, tops.indexOf(el.parentElement.offsetTop)); };
+const conLine = el => { const tops = [...new Set(wCon.map(w => lineTop(w.parentElement)))].sort((a, b) => a - b); return Math.max(0, tops.indexOf(lineTop(el.parentElement))); };
+// the highlighted phrase is wrapped line by line into selections, wherever the text happens to break; measured
+// before anything moves, and again whenever the layout is rebuilt
+function wrapLines() {
+  const hl = $('#conHl');
+  hl.querySelectorAll('.line').forEach(l => l.replaceWith(...l.childNodes));
+  const nodes = [...hl.childNodes], tops = nodes.map(n => n.nodeType === 1 ? lineTop(n) : null);
+  let group = null, top = null, space = null;
+  nodes.forEach((n, i) => {
+    if (n.nodeType !== 1) { space = n; return; }
+    if (!group || tops[i] !== top) {
+      group = document.createElement('span'); group.className = 'sel lil line'; n.before(group); top = tops[i];
+    } else if (space) group.append(space);
+    group.append(n); space = null;
+  });
+  // wrapping can move the breaks (the lines are balanced), leaving two selections on one line: join those and look
+  // again until every selection has a line of its own
+  for (let k = 0; k < 4; k++) {
+    const ls = [...hl.querySelectorAll('.line')];
+    const i = ls.findIndex((l, j) => j > 0 && lineTop(l) === lineTop(ls[j - 1]));
+    if (i < 0) break;
+    const prev = ls[i - 1];
+    while (prev.nextSibling !== ls[i]) prev.append(prev.nextSibling);
+    prev.append(...ls[i].childNodes); ls[i].remove();
+  }
+}
+wrapLines();
 
 if (reduce) {
   document.documentElement.classList.add('ready');
@@ -696,7 +723,7 @@ if (reduce) {
   buildStats(); S.p1 = S.p2 = 1; drawStats();
   typeLines.forEach((ln, i) => { T[i] = ln.chars.length; }); renderType(); caret.remove();
   gsap.set('.hl', { backgroundSize: '100% 46%' });
-  gsap.set('.sel', { '--s': 1, '--h': 1, '--e': 1 });
+  gsap.set(['.sel', '#conHl'], { '--s': 1, '--h': 1 });
   gsap.set(['#ask', '#join', '#brandLock'], { xPercent: -50, yPercent: -50 });
 } else {
   const cards = gsap.utils.toArray('.card');
@@ -732,7 +759,7 @@ if (reduce) {
   gsap.set(cards, { y: () => innerHeight * 1.05, rotation: i => [-14, 10, -8, 16][i] });
 
   document.documentElement.classList.add('ready');
-  const buildAll = () => { buildStats(); drawWedges(); drawUntil(); };
+  const buildAll = () => { wrapLines(); buildStats(); drawWedges(); drawUntil(); };
   ScrollTrigger.addEventListener('refreshInit', buildAll);
   buildAll();
   // sizes depend on the font, so measure again once it has loaded
@@ -855,7 +882,6 @@ if (reduce) {
     .to(wCon2, { yPercent: 0, rotation: 0, duration: 0.5, stagger: 0.03, ease: 'smooth-ease' }, 'connects+=0.9')
     .to('#conHl', { '--h': 1, duration: 0.1 }, 'connects+=1.2')
     .to('#conHl', { '--s': 1, duration: 0.45, ease: 'smooth-ease' }, 'connects+=1.2')
-    .to('#conHl', { '--e': 1, duration: 0.12 }, 'connects+=1.55')
     .addLabel('rConnects', 'connects+=1.6')
 
   // 10 · Section 2 comes up; the four cards rise and fan in, the ribbon drawing in behind them
