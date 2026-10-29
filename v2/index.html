@@ -222,6 +222,12 @@ body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--fd);-we
 }
 /* in Step the page itself doesn't scroll: each gesture plays a section instead */
 html.stepped,html.stepped body{height:100%;overflow:hidden;overscroll-behavior:none}
+/* which version: v2 and v4 link to each other, keeping the scroll mode */
+.vers{position:fixed;right:14px;top:14px;z-index:100;display:flex;padding:4px;gap:2px;border-radius:999px;
+  background:rgba(239,238,234,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 18px rgba(20,30,90,.18)}
+.vers a{padding:8px 14px;border-radius:999px;color:var(--ink);font:700 14px/1 var(--fd);text-decoration:none}
+.vers a[aria-current="page"]{background:var(--ink);color:var(--cream)}
+@media (max-width:720px){.vers{top:auto;bottom:14px;right:50%;transform:translateX(50%)}}
 /* the Scrub / Snap / Step switch, for comparing the two ways of scrolling; it sits above everything */
 .modes{position:fixed;left:50%;top:14px;z-index:100;transform:translateX(-50%);display:flex;padding:4px;gap:2px;border-radius:999px;
   background:rgba(239,238,234,.82);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);box-shadow:0 4px 18px rgba(20,30,90,.18)}
@@ -242,6 +248,8 @@ html.stepped,html.stepped body{height:100%;overflow:hidden;overscroll-behavior:n
   <button type="button" data-mode="step" aria-pressed="false">Step</button>
   <button type="button" data-mode="step" data-start="story" aria-pressed="false" title="Step, opening on the story">Step 2</button>
 </div>
+
+<nav class="vers" aria-label="Version"><a href="../v2/" aria-current="page">v2</a><a href="../v4/">v4</a></nav>
 
 <div class="film" id="film">
 
@@ -362,6 +370,8 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // ?start=story opens straight on the story ("At 18…"), the brand arriving later; otherwise it opens on the brand
 const STORY = new URLSearchParams(location.search).get('start') === 'story';
 const $ = s => document.querySelector(s);
+// the version links carry the scroll mode and start across
+document.querySelectorAll('.vers a').forEach(a => { a.href = a.getAttribute('href') + location.search; });
 // Lenis smooths the scroll itself
 let lenis = null;
 if (!reduce && window.Lenis) {
@@ -376,14 +386,17 @@ const rad = d => d * Math.PI / 180;
    re-seeking one to match the other is what made the sky jump. ---------- */
 const videos = [...document.querySelectorAll('video[data-src]')];
 videos.forEach(v => { v.src = v.dataset.src; });
-const ready = v => new Promise(r => v.readyState >= 3 ? r() : v.addEventListener('canplay', r, { once: true }));
-let skyPlaying = false;
+// wait until both can play through: starting on 'canplay' stalled on the first second, and the timeline's
+// first update used to start them early, so the later seek back to 0 made them jump on load
+const ready = v => new Promise(r => v.readyState >= 4 ? r() : v.addEventListener('canplaythrough', r, { once: true }));
+let skyReady = false, skyWanted = true, skyPlaying = false;
 function playSky(on) {
-  if (on === skyPlaying || reduce) return;
+  skyWanted = on;
+  if (!skyReady || on === skyPlaying || reduce) return;
   skyPlaying = on;
   videos.forEach(v => on ? v.play().catch(() => {}) : v.pause());
 }
-Promise.all(videos.map(ready)).then(() => { videos.forEach(v => { v.currentTime = 0; }); playSky(true); });
+Promise.all(videos.map(ready)).then(() => { skyReady = true; playSky(skyWanted); });
 
 /* ---------- text splitting ---------- */
 function textNodes(root) {
